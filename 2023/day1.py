@@ -66,7 +66,7 @@ def problem_b(data):
 import unittest
 
 
-class TestProblem1(unittest.TestCase):
+class TestProblem(unittest.TestCase):
     def test_samples_a(self):
         data = """1abc2
                pqr3stu8vwx
