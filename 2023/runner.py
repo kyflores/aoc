@@ -29,8 +29,9 @@ if __name__ == "__main__":
         print(e)
         exit(1)
 
-    with open(opt.input, "r") as f:
-        inputs = f.read()
+    if opt.input:
+        with open(opt.input, "r") as f:
+            inputs = f.read()
 
     mod = importlib.import_module("day{}".format(num))
     fn = getattr(mod, "problem_{}".format(part))
@@ -49,4 +50,4 @@ if __name__ == "__main__":
         exit(0)
 
     res = fn(inputs)
-    print(res)
+    print("=====> {} <=====".format(res))
