@@ -1,7 +1,6 @@
-# TEMPLATE
-
 from textwrap import dedent
 import re
+import functools
 
 
 def index_have(s):
@@ -30,16 +29,17 @@ def problem_b(data):
     all_cards = []
     lines = data.strip("\n").split("\n")
     lines = [x.split(":")[1].split("|") for x in lines]
-    for ix, (left, right) in enumerate(lines, start = 1):
+    for ix, (left, right) in enumerate(lines, start=1):
         right = index_have(right)
         left = [int(x) for x in re.findall(r"\d+", left)]
         # total = sum([(1 if (right.get(x) is not None) else 0) for x in right])
         all_cards.append({"ix": ix, "left": left, "right": right})
 
-
     # Cards is just one line when first called, but will expand as we recurse
-    def count(card, all_cards) -> int:
-        total = [(1 if (card['right'].get(x) is not None) else 0) for x in card['left']]
+    @functools.cache
+    def count(card_ix) -> int:
+        card = all_cards[card_ix]
+        total = [(1 if (card["right"].get(x) is not None) else 0) for x in card["left"]]
         total = sum(total)
         # print("Card {} had {} matches".format(card, total))
 
@@ -48,16 +48,16 @@ def problem_b(data):
             return 0
 
         dups_total = 0
-        for x in all_cards[card['ix'] : card['ix'] + total]:
-            dups_total += count(x, all_cards)
+        for x in all_cards[card["ix"] : card["ix"] + total]:
+            dups_total += count(x["ix"] - 1)
 
         return total + dups_total
 
     # Since my recursive function only counts the dups that result from a given card,
     # we start the count at len(all_cards) to include the ones we already start with.
     out = len(all_cards)
-    for c in all_cards:
-        res = count(c, all_cards)
+    for c in range(len(all_cards)):
+        res = count(c)
         out += res
 
     return out
