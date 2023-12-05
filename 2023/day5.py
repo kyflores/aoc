@@ -36,6 +36,7 @@ def build(data):
 
     return res
 
+
 # We need to come up with a way to generate the seeds incrementally
 # as they will fill up memory if created before hand
 def expand_seeds(seeds):
@@ -48,6 +49,7 @@ def expand_seeds(seeds):
         outs.append(range(start, start + ln))
 
     return outs
+
 
 def problem_a(data):
     res = build(data.strip("\n"))
@@ -64,26 +66,41 @@ def problem_a(data):
     return min(out)
 
 
-def problem_b(data):
-    res = build(data.strip("\n"))
+class HandleRange:
+    def __init__(self, lookup):
+        self.lookup = lookup
 
-    print('expand')
-    seeds = expand_seeds(res["seeds"])
-    # print(seeds)
-
-    print("loop")
-    curr_min = float("inf")
-    for seed_range in seeds:
-        for s in seed_range:
+    def __call__(self, rn):
+        curr_min = float("inf")
+        for s in rn:
             key = "seed"
             tmp = s
             while key != "location":
-                tmp = res["mappings"][key]["fn"](tmp)
-                key = res["mappings"][key]["to"]
-            # out.append(tmp)
+                tmp = self.lookup["mappings"][key]["fn"](tmp)
+                key = self.lookup["mappings"][key]["to"]
             curr_min = min(tmp, curr_min)
+        return curr_min
 
-    return curr_min
+
+def problem_b(data):
+    res = build(data.strip("\n"))
+
+    print("expand")
+    seeds = expand_seeds(res["seeds"])
+    # print(seeds)
+
+    from multiprocessing import Pool
+
+    print("loop")
+
+    handler = HandleRange(res)
+    # for seed_range in seeds:
+    with Pool(12) as p:
+        out = p.map(handler, seeds)
+
+    print(out)
+
+    return min(out)
 
 
 # TEST
